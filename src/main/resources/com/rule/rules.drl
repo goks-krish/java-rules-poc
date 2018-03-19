@@ -1,0 +1,28 @@
+package com.rule
+
+import com.goks.model.Employee;
+import com.goks.model.SupportDay;
+
+rule "Not on Same Day"
+	when 
+		employee: Employee()
+		supportDay: SupportDay(today==employee.getPreviousShiftDate())
+	then
+		supportDay.setFirstShiftEmpId(-1);
+	end
+	
+rule "Not on Previous Day"
+	when 
+		employee: Employee()
+		supportDay: SupportDay(yesterday==employee.getPreviousShiftDate())
+	then
+		supportDay.setFirstShiftEmpId(-1);
+	end
+
+rule "Rotate All Employees"
+	when 
+		employee: Employee()
+		supportDay: SupportDay(((id+1) * 2)/totalEmployeeCount < employee.getTotalShifts())
+	then
+		supportDay.setFirstShiftEmpId(-1);
+	end
