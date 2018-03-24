@@ -1,4 +1,4 @@
-package com.goks.model;
+package com.goks.fortune.model;
 
 
 public class Employee {

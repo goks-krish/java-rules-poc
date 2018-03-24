@@ -1,7 +1,7 @@
 package com.rule
 
-import com.goks.fortune.model.Employee;
-import com.goks.fortune.model.SupportDay;
+import com.goks.model.Employee;
+import com.goks.model.SupportDay;
 
 rule "Not on Same Day"
 	when 
@@ -22,7 +22,7 @@ rule "Not on Previous Day"
 rule "Rotate All Employees"
 	when 
 		employee: Employee()
-		supportDay: SupportDay(((id+1) * 2) <= (employee.getTotalShifts() * totalEmployeeCount))
+		supportDay: SupportDay(((id+1) * 2)/totalEmployeeCount < employee.getTotalShifts())
 	then
 		supportDay.setComplete(false);
 	end

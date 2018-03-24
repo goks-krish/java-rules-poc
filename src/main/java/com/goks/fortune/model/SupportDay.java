@@ -1,4 +1,4 @@
-package com.goks.model;
+package com.goks.fortune.model;
 
 import java.util.Date;
 
@@ -10,6 +10,7 @@ public class SupportDay {
 	private int firstShiftEmpId;
 	private int lastShiftEmpId;
 	private int totalEmployeeCount;
+	private boolean complete;
 	
 	public String getToday() {
 		return today;
@@ -46,6 +47,12 @@ public class SupportDay {
 	}
 	public void setTotalEmployeeCount(int totalEmployeeCount) {
 		this.totalEmployeeCount = totalEmployeeCount;
+	}
+	public boolean isComplete() {
+		return complete;
+	}
+	public void setComplete(boolean complete) {
+		this.complete = complete;
 	}
 
 }

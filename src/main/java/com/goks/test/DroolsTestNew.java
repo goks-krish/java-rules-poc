@@ -4,56 +4,47 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 
 import org.drools.compiler.compiler.DroolsParserException;
-//import org.drools.compiler.compiler.PackageBuilder;
-//import org.drools.core.RuleBase;
-//import org.drools.core.RuleBaseFactory;
-import org.drools.core.WorkingMemory;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.KieRepository;
+import org.kie.api.io.Resource;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 
 import com.goks.fortune.model.Employee;
 import com.goks.fortune.model.SupportDay;
 
-public class DroolsTest {
+public class DroolsTestNew {
 	
 	int totalEmployees = 10;
-	int totalDays = 6;
+	int totalDays = 10;
 	
 	public static void main(String[] args) throws DroolsParserException, IOException {
 	
 		System.out.println("Start");
 		
-		DroolsTest droolsTest = new DroolsTest();
+		DroolsTestNew droolsTest = new DroolsTestNew();
 		droolsTest.executeDrools();
 		
 		System.out.println("complete");
 	
 	}
 	
-	public static Integer[] randomGenerator(int max) {
-		Integer[] arr = new Integer[max];
-	    for (int i = 1; i <= arr.length; i++) {
-	        arr[i-1] = i;
-	    }
-	    Collections.shuffle(Arrays.asList(arr));
-		return arr;
-	}
-	
 	public void executeDrools() throws DroolsParserException, IOException {
-/*		PackageBuilder packageBuilder = new PackageBuilder();
-
-		String ruleFile = "/com/rule/Rules.drl";
-		InputStream resourceAsStream = getClass().getResourceAsStream(ruleFile);
-
-		Reader reader = new InputStreamReader(resourceAsStream);
-		packageBuilder.addPackageFromDrl(reader);
-		org.drools.core.rule.Package rulesPackage = packageBuilder.getPackage();
-		RuleBase ruleBase = RuleBaseFactory.newRuleBase();
-		ruleBase.addPackage(rulesPackage);
-
+		
+        KieServices kieServices = KieServices.Factory.get();
+        KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
+        Resource resource = kieServices.getResources().newFileSystemResource("src/main/resources/com/rule/rules.drl");
+        
+        kieFileSystem.write(resource);
+        KieBuilder kbuilder = kieServices.newKieBuilder(kieFileSystem);
+        kbuilder.buildAll();
+        KieRepository kieRepository = kieServices.getRepository();
+        KieContainer kContainer = kieServices.newKieContainer(kieRepository.getDefaultReleaseId());
+        
 		
 		SupportDay[] supportDays = new SupportDay[totalDays];
 		Employee[] employees = new Employee[totalEmployees];
@@ -78,40 +69,37 @@ public class DroolsTest {
 		for(int i=0;i<supportDays.length;i++) {
 			
 			int j=0;
-			while(supportDays[i].getFirstShiftEmpId()==-1) {
-				WorkingMemory workingMemory = ruleBase.newStatefulSession();
-				workingMemory = ruleBase.newStatefulSession();
-				
+			supportDays[i].setComplete(false);
+			while(!supportDays[i].isComplete()) {
+				KieSession kSession = kContainer.newKieSession(); 
 				supportDays[i].setFirstShiftEmpId(employees[j].getId());
-				workingMemory.insert(employees[j]);
-				workingMemory.insert(supportDays[i]);
-				workingMemory.fireAllRules();
+				supportDays[i].setComplete(true);
+				kSession.insert(employees[j]);
+				kSession.insert(supportDays[i]);
+				kSession.fireAllRules();
 				j++;
-				
 			}
 			employees[supportDays[i].getFirstShiftEmpId()].setPreviousShiftDate(supportDays[i].getToday());
 			employees[supportDays[i].getFirstShiftEmpId()].setTotalShifts(employees[supportDays[i].getFirstShiftEmpId()].getTotalShifts()+1); 
-System.out.println(employees[supportDays[i].getFirstShiftEmpId()].getTotalShifts());
-			j=0;			
-			while(supportDays[i].getLastShiftEmpId()==-1) {
-				WorkingMemory workingMemory = ruleBase.newStatefulSession();
-				workingMemory = ruleBase.newStatefulSession();
-				
+			j=0;
+			supportDays[i].setComplete(false);
+			while(!supportDays[i].isComplete()) {
+				KieSession kSession = kContainer.newKieSession();		
 				supportDays[i].setLastShiftEmpId(employees[j].getId());
-				workingMemory.insert(employees[j]);
-				workingMemory.insert(supportDays[i]);
-				workingMemory.fireAllRules();
+				supportDays[i].setComplete(true);
+				kSession.insert(employees[j]);
+				kSession.insert(supportDays[i]);
+				kSession.fireAllRules();
 				j++;
 			}
 			employees[supportDays[i].getLastShiftEmpId()].setPreviousShiftDate(supportDays[i].getToday());
-			
+			employees[supportDays[i].getLastShiftEmpId()].setTotalShifts(employees[supportDays[i].getLastShiftEmpId()].getTotalShifts()+1);
 		}
 		
 		System.out.println("\n\n\t\t******Results\n");
 		for(int i=0;i<supportDays.length;i++) {
 			System.out.println("Date: " + supportDays[i].getToday() + " --> first shift: "+ supportDays[i].getFirstShiftEmpId() + " & second shift: "+supportDays[i].getLastShiftEmpId());
 		}
-*/		
 	
 	}
 
